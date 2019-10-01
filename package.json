@@ -1,0 +1,43 @@
+{
+  "name": "nodeshop",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "start": "npx nodemon app.js"
+  },
+  "author": "조찬영",
+  "license": "ISC",
+  "dependencies": {
+    "app-root-path": "^2.2.1",
+    "body-parser": "^1.18.3",
+    "cheerio": "^1.0.0-rc.2",
+    "co": "^4.6.0",
+    "connect-flash": "^0.1.1",
+    "connect-mongo": "^2.0.3",
+    "cookie-parser": "^1.4.3",
+    "csurf": "^1.9.0",
+    "dotenv": "^8.1.0",
+    "ejs": "^2.6.1",
+    "express": "^4.16.4",
+    "express-paginate": "^1.0.0",
+    "express-session": "^1.15.6",
+    "iamporter": "^1.4.2",
+    "mongodb": "^3.1.10",
+    "mongoose": "^4.11.2",
+    "mongoose-plugin-autoinc": "^1.1.9",
+    "morgan": "^1.9.1",
+    "multer": "^1.4.1",
+    "npx": "^10.2.0",
+    "passport": "^0.4.0",
+    "passport-facebook": "^3.0.0",
+    "passport-kakao": "0.0.5",
+    "passport-local": "^1.0.0",
+    "passport-naver": "^1.0.6",
+    "path": "^0.12.7",
+    "process": "^0.11.10",
+    "request": "^2.88.0",
+    "socket.io": "^2.2.0",
+    "winston": "^3.2.1"
+  }
+}

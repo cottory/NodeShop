@@ -1,0 +1,56 @@
+<% include ../header.ejs %>
+
+    <div class="panel panel-default" id="chatWrap">
+        <div class="panel-heading">대화내용</div>
+        <div class="panel-body">
+            <ul id="chatBody"></ul>
+        </div>
+    </div>
+
+    <form action="" method="post" id="sendForm">
+
+        <div class="input-group">
+            <input type="hidden" name="socketId">
+            <input type="text" name="message" class="form-control" placeholder="대화내용을 입력해주세요.">
+            <span class="input-group-btn">
+                <button class="btn btn-primary">작성하기</button>
+            </span>
+        </div><!-- /input-group -->
+
+    </form>  
+
+
+
+<style type="text/css">
+.panel-default ul { padding-left:0px; }
+.panel-default ul li { list-style:none; padding-left:0px;}
+.panel-default .panel-body {min-height:350px; max-height:350px;  overflow-y:scroll; }
+#chatWrap ul li strong::after { content: " : "; }
+@media (max-width: 768px) { 
+    #userWrap { display:none; }
+    #chatWrap .panel-body { min-height:250px; }
+}
+</style>
+<script src="/socket.io/socket.io.js"></script>  
+<script>
+
+var socket = io();
+
+socket.on('server message', function(data){
+    $('#chatBody').append('<li>' + data + '</li>');
+});
+
+$(document).ready(function() {
+    $('#sendForm').submit(function(){
+        var $massage = $('#sendForm input[name=message]');
+        socket.emit('client message', { message : $massage.val()}); //클라이언트 메시지로 그 내용을 emit(보내주고)
+        $massage.val('');   //다시 비워줍니다.
+        return false;   //그리고 액션이 안 일어나도록 return false (페이지 리프래쉬가 안 일어나도록)
+        
+        //input의 아랫쪽의 내용을 적어 누르면 클라이언트라는 이벤트명으로 소켓서버로 보내는 것입니다./
+        //그러면 소켓 서버는 socket.on 클라이언트 메시지를 통해 받습니다.
+    });
+});
+
+</script>
+<% include ../footer.ejs %>

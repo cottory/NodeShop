@@ -1,0 +1,168 @@
+<% include ../header.ejs %>
+    
+
+    <div class="panel panel-default">
+        <input type="hidden" name="_csrf" value="<%=csrfToken%>" />
+        <div class="panel-heading">
+            <%=product.name%>
+        </div>
+        <div class="panel-body">
+            <div style="padding-bottom: 10px">
+                작성일 : 
+                    <%=product.getDate.year%> -
+                    <%=product.getDate.month%> -
+                    <%=product.getDate.day%>
+            </div>
+
+            <% if(product.thumbnail){%>
+            <p>
+                <img src="/uploads/<%=product.thumbnail%>" style="max-width: 100%"/>
+            </p>
+            <% } %>
+
+            <%-product.description%>
+
+            <hr />
+
+    <form action="" method="post" id="cartForm">
+
+            <!--가격 -->
+            <input type="hidden" name="price" value="<%=product.price%>">
+            <!--장바구니의 갯수 -->
+            <input type="hidden" name="number" value="1">
+            <!--선택한 장바구니의 갯수 * 가격 = 총 구매가격 -->
+            <input type="hidden" name="amount" value="<%=product.price%>">
+
+            <div>
+                <div class="printNum">갯수 : </div>
+                <div class="CountBox">
+                    <a href="#" type="minus">-</a>
+                    <p id="amountHtml">1</p>
+                    <a href="#" type="plus">+</a>
+                </div>
+                <div class="priceWrap">
+                    금액 : <span id="priceHtml"><%=product.price%></span>
+                </div>
+                <div style="clear:both"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <a href="/" class="btn btn-default">목록으로</a>
+    <button class="btn btn-primary">장바구니 담기</button>
+
+    </form>
+
+<style>
+.printNum { 
+    float:left;
+    margin-right: 10px; 
+}
+.CountBox { 
+    width: 100px; 
+    float:left; 
+}
+.CountBox a { 
+    border : 1px solid #ddd; 
+    display:block; 
+    float:left; 
+    padding: 4px 8px; 
+    text-decoration: none;
+}
+.CountBox p { 
+    border-top : 1px solid #ddd; 
+    border-bottom : 1px solid #ddd; 
+    display:block; 
+    float:left; 
+    padding: 4px 8px; 
+}
+
+.priceWrap { 
+    float:right; 
+    font-size: 20px;
+}
+
+.priceWrap span::after { 
+    content : " 원";
+}
+</style>
+
+<script>
+$(document).ready(function(){
+    $('.CountBox a').click(function(event){ //class CountBox의 a를 클릭하는 경우
+        event.preventDefault(); //a태그로의 이동을 막기 위한 코드. href로 가지 못하게 하기 위함.
+ 
+        //타입을 받아온다 (+와 -로 분기할 것)
+        //어떻게 분기를 하냐면 attribute로 type을 받아옵니다.
+        //CountBox의 a를 클릭했는데, attribute가 +냐 -냐로 나누는 것. 
+        var type = $(this).attr('type');
+
+        //현재 장바구니에 담을 갯수를 저장 (input hidden에서 초기값 셋팅)
+        var cartNum = $('input[name=number]').val(); 
+
+        //현재 제품의 가격표 (input hidden에서 초기값 셋팅)
+        var price = $('input[name=price]').val();
+        
+        if(type==='minus'){ //타입을 받아와서 분기를 합니다. +,- 냐에 따라 나눈다
+            cartNum -= ( (cartNum==1) ? 0 : 1 ); //1이하로는 못내려가게 한다. (cartNum가 1이면 0을 뺀다)
+        }else if(type==='plus'){
+            cartNum++; 
+        }
+        //input 태그에 반영 , html페이지 에도 반영
+        $('input[name=number]').val(cartNum);         //input 태그에 반영
+        $('#amountHtml').html(cartNum);               //html페이지 에도 반영 # => id값 갱신
+        $('input[name=amount]').val(cartNum * price); //input 태그에 반영
+        $('#priceHtml').html(cartNum * price);        //html페이지 에도 반영 # => id값 갱신
+
+    });
+
+
+    $('#cartForm').submit(function(){
+        if(confirm('장바구니에 담겠습니까?')){
+            //▽▽▽변수 셋팅▽▽▽
+            //장바구니에 담길 ID,사진,이름을 받는다
+            var productId = <%=product.id%>;
+            var thumbnail = "<%=product.thumbnail%>";   //스트링이라 " " 씌워줌 
+            var name = "<%=product.name%>";             //스트링이라 " " 씌워줌
+
+            //갯수와 총량을 담는다.
+            var number = $('input[name=number]').val();
+            var amount = $('input[name=amount]').val();
+            //△△△변수 셋팅 끝△△△
+
+            var cartList = {};
+            var totalAmount = 0;
+            
+            //getCookie와 setCookie를 사용할 수 있는 건 common.js에 선언했기 때문
+
+            if( getCookie('cartList') ){ //변수 셋팅 후 쿠키에서 가져온다
+                //쿠키에서 검색후 있으면 json 파싱함. 
+                //왜냐면 한 줄로 길게 늘어져 있으니까 객체에 맞게 셋팅을 해준다.
+                //cartList[N] : {...}
+                //cartList[N+1]: {...} 이런식
+                cartList = JSON.parse(getCookie('cartList'));
+            }
+
+            cartList[productId] = { 
+                number : number , 
+                amount : amount ,
+                thumbnail : thumbnail,
+                name : name,
+            };
+            
+            //마지막으로 저장할 때는 JSON.stringify
+            // string으로 저장되는데 나중에 {}형식으로 받기위해 stringfy로 저장
+            setCookieHour( "cartList" , JSON.stringify(cartList) , 3 ); //3시간 유지로 셋팅
+
+            alert("장바구니에 담았습니다.");
+        }
+
+        return false;
+    });
+
+});
+
+</script>
+
+<% include ../footer.ejs %>
